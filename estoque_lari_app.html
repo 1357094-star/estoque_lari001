@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estoque LARI</title>
+  <style>
+    :root {
+      --azul: #1565c0;
+      --azul-escuro: #0d47a1;
+      --azul-claro: #e3f2fd;
+      --borda: #cfe0f5;
+      --texto: #1f2937;
+      --muted: #6b7280;
+      --sucesso: #0f9d58;
+      --erro: #c62828;
+      --fundo: #f5f9ff;
+      --branco: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--fundo), #edf4ff);
+      color: var(--texto);
+    }
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+    .card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 22px;
+      box-shadow: 0 8px 24px rgba(13, 71, 161, 0.08);
+    }
+    .hero {
+      padding: 20px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .sub {
+      margin: 4px 0 0;
+      opacity: 0.95;
+      font-size: 0.96rem;
+    }
+    .search-card {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: block;
+      color: var(--azul-escuro);
+    }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    input {
+      flex: 1 1 260px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--borda);
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+    }
+    button {
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--azul);
+      color: white;
+    }
+    .btn-secondary {
+      background: var(--azul-claro);
+      color: var(--azul-escuro);
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      padding: 16px;
+    }
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--azul-escuro);
+      margin-top: 6px;
+    }
+    .result {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .found {
+      border-left: 6px solid var(--sucesso);
+    }
+    .not-found {
+      border-left: 6px solid var(--erro);
+    }
+    .material {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .meta div {
+      background: #f8fbff;
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .meta span {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .list-title {
+      margin: 14px 2px 10px;
+      font-size: 1rem;
+      color: var(--azul-escuro);
+      font-weight: 700;
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 10px 0 0;
+    }
+    @media (max-width: 520px) {
+      .meta {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card hero">
+      <div class="row">
+        <div class="icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <rect x="7" y="7" width="10" height="10" rx="2" stroke="white" stroke-width="1.8"/>
+            <path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Estoque LARI</h1>
+          <p class="sub">Consulta rápida de materiais do laboratório</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card stat">
+        Total de registros
+        <strong id="total-registros">0</strong>
+      </div>
+      <div class="card stat">
+        Itens com quantidade
+        <strong id="total-estoque">0</strong>
+      </div>
+    </div>
+
+    <div class="card search-card">
+      <label class="label" for="busca">Digite o nome do material</label>
+      <div class="search-row">
+        <input id="busca" type="text" placeholder="Ex.: Arduino, sensor, Raspberry..." />
+        <button class="btn-primary" id="btnBuscar">Consultar</button>
+        <button class="btn-secondary" id="btnLimpar" type="button">Limpar</button>
+      </div>
+      <div class="hint">A busca aceita nome completo ou parte do nome.</div>
+    </div>
+
+    <div id="resultado-exato"></div>
+    <div class="list-title" id="titulo-lista">Sugestões</div>
+    <div id="resultados-lista"></div>
+
+    <div class="footer">
+      Aplicativo local de consulta. Base carregada da planilha do laboratório.
+    </div>
+  </div>
+
+  <script>
+    const dados = [{"item": 1, "material": "Acelelômetro, Giroscópio e Magnetômetro Mpu - 9250 9 TOVJ11397", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 2, "material": "Alexa", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 3, "material": "Atuador RTC DS1302 5 pinos", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 4, "material": "Barramento 50 pinos macho macho", "quantidade": 24, "armario": "001", "caixa": "001"}, {"item": 5, "material": "Barramento 8 pinps macho macho", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 6, "material": "Barramento macho fêmea", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 7, "material": "Bateria 9V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 8, "material": "Bateria 9V", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 9, "material": "Bateria de Chumbo - XB 1212 - Intelbras", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 10, "material": "Bateria moeda CR 2025", "quantidade": 3, "armario": "001", "caixa": "004"}, {"item": 11, "material": "Bocal de Porcelana para mini lampadas", "quantidade": 12, "armario": "001", "caixa": "003"}, {"item": 12, "material": "Botão Grove - 5V DC - TTL 20mm", "quantidade": 4, "armario": "001", "caixa": "002"}, {"item": 13, "material": "Buzer mini 5V", "quantidade": 73, "armario": "001", "caixa": "002"}, {"item": 14, "material": "Buzzer Module Low Level Trigger", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 15, "material": "Cabo HDI - VGA com adaptador", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 16, "material": "Cabo HDI - VGA sem adaptador", "quantidade": 2, "armario": "001", "caixa": "004"}, {"item": 17, "material": "Cabo HDMI - HDMI  para projetor", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 18, "material": "Cabo USB - Arduino", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 19, "material": "Cabo conector USB C", "quantidade": 10, "armario": "001", "caixa": "001"}, {"item": 20, "material": "Cabo de energia 3 pontas para projetor", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 21, "material": "Camera NEO ID - PTZ CAMERA USB", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 22, "material": "Carregador para 02 Pilhas 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 23, "material": "Chave liga/desliga", "quantidade": 64, "armario": "001", "caixa": "001"}, {"item": 24, "material": "Conector USB tipo Micro-USB (5 pinos)", "quantidade": 7, "armario": "001", "caixa": "002"}, {"item": 25, "material": "Conector elétrico de parafuso - Borne", "quantidade": 100, "armario": "001", "caixa": "003"}, {"item": 26, "material": "Conector fêmea para plug", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 27, "material": "Conjunto dissipador para placas Raspberry", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 28, "material": "Controlador de acesso facial", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 29, "material": "DFplayer Mini - MP3", "quantidade": 11, "armario": "001", "caixa": "002"}, {"item": 30, "material": "Display Groove", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 31, "material": "Display LCD D1 Robot", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 32, "material": "Display LCD I2c 16x2 Com Blacklight Azul e Escrita Branca - 7899744030328 - RTDN32484", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 33, "material": "Display LCD I2c 16x2 Genérico", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 34, "material": "Fechadura eletroima - FE20150 - Intrelbras", "quantidade": 2, "armario": "001", "caixa": "001"}, {"item": 35, "material": "Fio com duas tomadas fêmeas", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 36, "material": "Fios macho macho", "quantidade": 40, "armario": "001", "caixa": "004"}, {"item": 37, "material": "Fonte Liga/desliga Model 0530 Raspberry PI 5V - 3000mA", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 38, "material": "Fonte Liga/desliga Model CTD 050300A Raspberry PI 5V - 3000mA", "quantidade": 7, "armario": "001", "caixa": "004"}, {"item": 39, "material": "Fonte Liga/desliga Model CTD 050300A Raspberry PI 5V - 3000mA", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 40, "material": "Fonte com Plug 5V 2A", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 41, "material": "Fontrev de alimentação FA 1220S Mini - Intelbras", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 42, "material": "Kit Braço Robótico", "quantidade": 5, "armario": "001", "caixa": "003"}, {"item": 43, "material": "Kit Carrinho 4 rodas sem motores", "quantidade": 1, "armario": "001", "caixa": "003"}, {"item": 44, "material": "Kit Makey Makey com Cabos", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 45, "material": "Kit fio jumper fêmea fêma", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 46, "material": "Kit fio jumper fêmea fêmea", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 47, "material": "Kit fio jumper macho fêmea", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 48, "material": "Kit fio rigido jumper", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 49, "material": "Kit fio rigido jumper", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 50, "material": "Kit motor de passo 5V 28BYJ-48 + drive ULN2003", "quantidade": 2, "armario": "001", "caixa": "001"}, {"item": 51, "material": "Led 3mm Amarelo", "quantidade": 20, "armario": "001", "caixa": "004"}, {"item": 52, "material": "Led 3mm Amarelo", "quantidade": 10, "armario": "001", "caixa": "004"}, {"item": 53, "material": "Led 3mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 54, "material": "Led 3mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 55, "material": "Led 3mm Vermelho 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 56, "material": "Led 3mm Vermelho 20", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 57, "material": "Led 5mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 58, "material": "Leitor de catrão - RFID - LE 130 MF - Intelbras", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 59, "material": "Lousa Digital 01", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 60, "material": "Micro Switcher 4 canais - HDMI - NEO ID", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 61, "material": "Mini Autofalante", "quantidade": 14, "armario": "001", "caixa": "002"}, {"item": 62, "material": "Mini Headfone para computador", "quantidade": 1, "armario": "001", "caixa": "003"}, {"item": 63, "material": "Mini Joystck - 5 pinos", "quantidade": 8, "armario": "001", "caixa": "001"}, {"item": 64, "material": "Mini Push-button", "quantidade": 20, "armario": "001", "caixa": "004"}, {"item": 65, "material": "Mini teclado Bluetooth", "quantidade": 5, "armario": "001", "caixa": "003"}, {"item": 66, "material": "Mini teclado Bluetooth", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 67, "material": "Motor Engrenado Amarelo", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 68, "material": "Motor de alta potência com suporte", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 69, "material": "Motor de passo 5V 28BYJ-48", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 70, "material": "Módulo Bluetooth - HC-05", "quantidade": 3, "armario": "001", "caixa": "002"}, {"item": 71, "material": "Módulo Botão Amarelo Grove - 111020070", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 72, "material": "Módulo Convesor A/D com Sensor de Luz e Temperatura", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 73, "material": "Módulo Display 8 Colunas", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 74, "material": "Módulo LED & KEY baseado no TM1638 8 Leds e 2 Display de 4 colunas com 8 boitões S1..s8", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 75, "material": "Módulo Leitor de Cartão Memória", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 76, "material": "Módulo Sensor de Umidade de Solo", "quantidade": 15, "armario": "001", "caixa": "002"}, {"item": 77, "material": "Módulo amplificador de áudio - GF1002 / GS27076", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 78, "material": "Módulo de Comunicação ZigBee T2 - Yale", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 79, "material": "Módulo sensor de movimento presença Hc-sr501 Pir Arduino", "quantidade": 29, "armario": "001", "caixa": "001"}, {"item": 80, "material": "Módulo sensor infravermelho ir Tcrt5000 - SKU: MLKIT_MLB3141810404", "quantidade": 5, "armario": "001", "caixa": "002"}, {"item": 81, "material": "Pilha 3.7V Lition Carregável", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 82, "material": "Pilhas AA 1.5V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 83, "material": "Placa universal (placa padrão perfurada) PY-5CM × 7CM", "quantidade": 40, "armario": "001", "caixa": "003"}, {"item": 84, "material": "Plca Arduino", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 85, "material": "Plug Banana Preto", "quantidade": 50, "armario": "001", "caixa": "003"}, {"item": 86, "material": "Plug Banana Vermelho", "quantidade": 50, "armario": "001", "caixa": "003"}, {"item": 87, "material": "Plug para rabicho", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 88, "material": "Potenciometro 3 pinos", "quantidade": 64, "armario": "001", "caixa": "001"}, {"item": 89, "material": "Protoboard 25 pinos", "quantidade": 6, "armario": "001", "caixa": "004"}, {"item": 90, "material": "Protoboard 50 pinos", "quantidade": 6, "armario": "001", "caixa": "003"}, {"item": 91, "material": "Protoboard 50 pinos", "quantidade": 9, "armario": "001", "caixa": "004"}, {"item": 92, "material": "Rabicho conexão para bateria 9V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 93, "material": "Ralo Inteligente - Egaplast", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 94, "material": "Raspberry Pi 4", "quantidade": 5, "armario": "001", "caixa": "004"}, {"item": 95, "material": "Receptor de Audio Wireless - WPM-100 - Takstar", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 96, "material": "Regulador de tensão 5V - L7805Cv to 220 3 pinos", "quantidade": 20, "armario": "001", "caixa": "001"}, {"item": 97, "material": "Regulador de tensão 5V - LLM317 ajustável com resistores de 240 e 720 oms 3 pinos", "quantidade": 40, "armario": "001", "caixa": "001"}, {"item": 98, "material": "Relay HW-307", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 99, "material": "Resistor - 320 oms", "quantidade": 16, "armario": "001", "caixa": "004"}, {"item": 100, "material": "Resistor - 320 oms", "quantidade": 16, "armario": "001", "caixa": "004"}, {"item": 101, "material": "Rorary Encoder E38s6-c-(360)b5-26g2", "quantidade": 7, "armario": "001", "caixa": "001"}, {"item": 102, "material": "Sensor Detector de Voz 3 pinos", "quantidade": 14, "armario": "001", "caixa": "002"}, {"item": 103, "material": "Sensor Detector de Voz 4 pinos", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 104, "material": "Sensor Luminosidade Grove", "quantidade": 4, "armario": "001", "caixa": "002"}, {"item": 105, "material": "Sensor RGB TCS34725 3.3 - 5V - %v Safe", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 106, "material": "Sensor Unidade", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 107, "material": "Sensor de Luz Analógico - LDR", "quantidade": 11, "armario": "001", "caixa": "002"}, {"item": 108, "material": "Sensor de Luz Digital BH1750FVILUX", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 109, "material": "Sensor de Temperatura - DHT11", "quantidade": 13, "armario": "001", "caixa": "002"}, {"item": 110, "material": "Sensor de Temperatura - ESP-01S V1.0", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 111, "material": "Sensor de Umidade HD-38", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 112, "material": "Sensor de fluxo de vazão de água s201", "quantidade": 7, "armario": "001", "caixa": "002"}, {"item": 113, "material": "Sensor de nível de liquido ON/OFF Grande A", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 114, "material": "Sensor de nível de liquido ON/OFF Grande B", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 115, "material": "Sensor de nível de liquido ON/OFF Pequeno", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 116, "material": "Sensor de peso com célula de carga 50KG", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 117, "material": "Sensor de temperatura - Termistor 10K MF52A", "quantidade": 60, "armario": "001", "caixa": "002"}, {"item": 118, "material": "Sensor infravermelho BKRX12132", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 119, "material": "Sensor infravermelho J-842", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 120, "material": "Sensor seguidor de linha", "quantidade": 40, "armario": "001", "caixa": "002"}, {"item": 121, "material": "Servo motor 9g SG-90", "quantidade": 8, "armario": "001", "caixa": "001"}, {"item": 122, "material": "Suporte Vertical para Bateria tipo botão", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 123, "material": "Suporte bateria 9V c/ chave liga/desliga", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 124, "material": "Suporte para 01 pilha 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 125, "material": "Suporte para 02 Pilhas 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 126, "material": "Suporte para 04 Pilhas AA /1.5V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 127, "material": "Suporte para bateria 9V com plug", "quantidade": 13, "armario": "001", "caixa": "001"}, {"item": 128, "material": "Suporte para bateria 9V com rabicho", "quantidade": 10, "armario": "001", "caixa": "001"}, {"item": 129, "material": "T com três fêmeas de 3 potas", "quantidade": 3, "armario": "001", "caixa": "004"}, {"item": 130, "material": "Tela LCD touch screen 3.5 pol com caneta", "quantidade": 8, "armario": "001", "caixa": "002"}, {"item": 131, "material": "Termometro com rabicho", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 132, "material": "Tomada conexão para USB 7v - 2000mA", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 133, "material": "acionador de fechadura inox", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 134, "material": "módulo gravador e reprodutor de voz ISD1820", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 135, "material": "suporte para poeta de vidro - SV 20150 - Intelbras", "quantidade": 2, "armario": "001", "caixa": "001"}];
+
+    const buscaEl = document.getElementById("busca");
+    const btnBuscar = document.getElementById("btnBuscar");
+    const btnLimpar = document.getElementById("btnLimpar");
+    const resultadoExato = document.getElementById("resultado-exato");
+    const resultadosLista = document.getElementById("resultados-lista");
+    const tituloLista = document.getElementById("titulo-lista");
+
+    document.getElementById("total-registros").textContent = dados.length;
+    document.getElementById("total-estoque").textContent = dados.filter(d => Number(d.quantidade) > 0).length;
+
+    function normalizar(texto) {
+      return (texto || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function cardResultado(item) {
+      return `
+        <div class="card result found">
+          <div class="material">${item.material}</div>
+          <div class="meta">
+            <div><span>Quantidade</span><strong>${item.quantidade}</strong></div>
+            <div><span>Armário</span><strong>${item.armario}</strong></div>
+            <div><span>Caixa</span><strong>${item.caixa}</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function cardNaoEncontrado(termo) {
+      return `
+        <div class="card result not-found">
+          <div class="material">Material não encontrado</div>
+          <div>Não localizei resultado para <strong>${termo}</strong>.</div>
+        </div>
+      `;
+    }
+
+    function pesquisar() {
+      const termo = buscaEl.value.trim();
+      const termoNorm = normalizar(termo);
+
+      resultadoExato.innerHTML = "";
+      resultadosLista.innerHTML = "";
+
+      if (!termoNorm) {
+        tituloLista.textContent = "Sugestões";
+        dados.slice(0, 12).forEach(item => {
+          resultadosLista.insertAdjacentHTML("beforeend", cardResultado(item));
+        });
+        return;
+      }
+
+      const exato = dados.find(item => normalizar(item.material) === termoNorm);
+      const aproximados = dados.filter(item => normalizar(item.material).includes(termoNorm));
+
+      if (exato) {
+        resultadoExato.innerHTML = cardResultado(exato);
+      }
+
+      if (aproximados.length === 0) {
+        resultadoExato.innerHTML = cardNaoEncontrado(termo);
+        tituloLista.textContent = "Nenhum resultado";
+        return;
+      }
+
+      tituloLista.textContent = aproximados.length === 1 ? "1 resultado" : `${aproximados.length} resultados`;
+      aproximados.slice(0, 30).forEach(item => {
+        resultadosLista.insertAdjacentHTML("beforeend", cardResultado(item));
+      });
+    }
+
+    btnBuscar.addEventListener("click", pesquisar);
+    btnLimpar.addEventListener("click", () => {
+      buscaEl.value = "";
+      pesquisar();
+      buscaEl.focus();
+    });
+    buscaEl.addEventListener("input", pesquisar);
+    buscaEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") pesquisar();
+    });
+
+    pesquisar();
+  </script>
+</body>
+</html>
