@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estoque LARI</title>
+  <style>
+    :root {
+      --azul: #1565c0;
+      --azul-escuro: #0d47a1;
+      --azul-claro: #e3f2fd;
+      --borda: #cfe0f5;
+      --texto: #1f2937;
+      --muted: #6b7280;
+      --sucesso: #0f9d58;
+      --erro: #c62828;
+      --alerta: #ef6c00;
+      --fundo: #f5f9ff;
+      --branco: #ffffff;
+      --sombra: 0 8px 24px rgba(13, 71, 161, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--fundo), #edf4ff);
+      color: var(--texto);
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .card {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 22px;
+      box-shadow: var(--sombra);
+    }
+
+    .hero {
+      padding: 20px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .sub {
+      margin: 4px 0 0;
+      opacity: 0.95;
+      font-size: 0.96rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--azul-escuro);
+      margin-top: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .search-card,
+    .pedido-card,
+    .resultado-area {
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: block;
+      color: var(--azul-escuro);
+    }
+
+    .search-row,
+    .btn-row,
+    .pedido-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--borda);
+      font-size: 1rem;
+      outline: none;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+    }
+
+    .search-row input {
+      flex: 1 1 260px;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.04s ease, opacity 0.2s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--azul);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--azul-claro);
+      color: var(--azul-escuro);
+    }
+
+    .btn-success {
+      background: var(--sucesso);
+      color: white;
+    }
+
+    .btn-warning {
+      background: #fff3e0;
+      color: var(--alerta);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .status-msg {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      display: none;
+      line-height: 1.45;
+    }
+
+    .status-ok {
+      display: block;
+      background: #edf9f2;
+      border: 1px solid #b7e4c7;
+      color: #166534;
+    }
+
+    .status-erro {
+      display: block;
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #9f1239;
+    }
+
+    .result {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .found { border-left: 6px solid var(--sucesso); }
+    .not-found { border-left: 6px solid var(--erro); }
+
+    .material {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .meta div,
+    .pedido-resumo {
+      background: #f8fbff;
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .meta span,
+    .pedido-resumo span,
+    .mini-label {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .qtd-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fbff;
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 8px 10px;
+    }
+
+    .qtd-box input {
+      width: 92px;
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .list-title {
+      margin: 14px 2px 10px;
+      font-size: 1rem;
+      color: var(--azul-escuro);
+      font-weight: 700;
+    }
+
+    .pedido-item {
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fcfeff;
+    }
+
+    .pedido-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
+
+    .pedido-item strong {
+      line-height: 1.35;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--azul-claro);
+      color: var(--azul-escuro);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .pedido-vazio {
+      padding: 16px;
+      border: 1px dashed var(--borda);
+      border-radius: 16px;
+      color: var(--muted);
+      background: #fbfdff;
+      line-height: 1.45;
+    }
+
+    .pedido-resumo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 10px 0 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      html {
+        font-size: 13px;
+      }
+
+      .wrap {
+        padding: 12px 10px 24px;
+      }
+
+      .hero,
+      .search-card,
+      .pedido-card,
+      .resultado-area,
+      .stat {
+        padding: 14px;
+      }
+
+      .row {
+        gap: 10px;
+      }
+
+      .icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .icon svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      h1 { font-size: 1.05rem; }
+      .sub { font-size: 0.72rem; }
+      .label, .list-title { font-size: 0.82rem; }
+      .hint, .footer, .mini-label, .status-msg { font-size: 0.7rem; }
+      .material { font-size: 0.84rem; }
+      .meta span,
+      .pedido-resumo span { font-size: 0.66rem; }
+      .meta strong,
+      .pedido-resumo strong,
+      .badge { font-size: 0.78rem; }
+
+      input,
+      textarea,
+      button {
+        font-size: 0.76rem;
+      }
+
+      input,
+      textarea {
+        padding: 10px 12px;
+        border-radius: 12px;
+      }
+
+      button {
+        padding: 10px 12px;
+        border-radius: 12px;
+      }
+
+      .search-row input {
+        flex-basis: 100%;
+      }
+
+      .qtd-box {
+        gap: 6px;
+        padding: 6px 8px;
+        border-radius: 12px;
+      }
+
+      .qtd-box input {
+        width: 72px;
+        padding: 8px 10px;
+      }
+
+      .pedido-item,
+      .result,
+      .meta div,
+      .pedido-resumo,
+      .pedido-vazio {
+        border-radius: 12px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats,
+      .meta,
+      .pedido-resumo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-actions,
+      .pedido-item-top,
+      .search-row,
+      .pedido-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-row button,
+      .pedido-actions button,
+      .card-actions button {
+        width: 100%;
+      }
+
+      .qtd-box {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      h1 { font-size: 0.98rem; }
+      .sub { font-size: 0.68rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card hero">
+      <div class="row">
+        <div class="icon" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <rect x="7" y="7" width="10" height="10" rx="2" stroke="white" stroke-width="1.8"/>
+            <path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Estoque LARI</h1>
+          <p class="sub">Consulta rápida de materiais do laboratório e montagem de pedido de retirada</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card stat">
+        Total de registros
+        <strong id="total-registros">0</strong>
+      </div>
+      <div class="card stat">
+        Itens com quantidade
+        <strong id="total-estoque">0</strong>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card search-card">
+          <label class="label" for="busca">Digite o nome do material</label>
+          <div class="search-row">
+            <input id="busca" type="text" placeholder="Ex.: Arduino, sensor, Raspberry..." />
+            <button class="btn-primary" id="btnBuscar" type="button">Consultar</button>
+            <button class="btn-secondary" id="btnLimpar" type="button">Limpar</button>
+          </div>
+          <div class="hint">A busca aceita nome completo ou parte do nome. Em cada resultado, você pode informar a quantidade desejada e adicionar ao pedido.</div>
+        </div>
+
+        <div class="card resultado-area">
+          <div id="resultado-exato"></div>
+          <div class="list-title" id="titulo-lista">Sugestões</div>
+          <div id="resultados-lista"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card pedido-card">
+          <label class="label" for="nomeSolicitante">Solicitação de retirada</label>
+
+          <div style="margin-bottom:10px;">
+            <span class="mini-label">Nome do usuário</span>
+            <input id="nomeSolicitante" type="text" placeholder="Digite o nome de quem vai retirar" />
+          </div>
+
+          <div>
+            <span class="mini-label">Observações</span>
+            <textarea id="observacoes" placeholder="Ex.: aula de Arduino, turma 2º ano, uso por 2 dias..."></textarea>
+          </div>
+
+          <div class="pedido-resumo-grid">
+            <div class="pedido-resumo">
+              <span>Itens no pedido</span>
+              <strong id="pedido-total-itens">0</strong>
+            </div>
+            <div class="pedido-resumo">
+              <span>Quantidade total</span>
+              <strong id="pedido-total-quantidades">0</strong>
+            </div>
+          </div>
+
+          <div id="pedido-lista"></div>
+
+          <div class="pedido-actions">
+            <button class="btn-success" id="btnEnviarEmail" type="button">Enviar pedido por e-mail</button>
+            <button class="btn-warning" id="btnCopiarPedido" type="button">Copiar pedido</button>
+            <button class="btn-secondary" id="btnLimparPedido" type="button">Limpar pedido</button>
+          </div>
+
+          <div class="hint">
+            Este HTML já monta o pedido completo com nome, peças, quantidades, data e hora. <br>
+            Nesta versão local, o botão de envio abre a tela de composição do <strong>Gmail</strong> com a mensagem pronta para <strong>pjsj349@gmail.com</strong>. Se a pessoa ainda não estiver logada no Google, o navegador pedirá login primeiro.
+          </div>
+
+          <div id="statusPedido" class="status-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Aplicativo local de consulta. Base carregada da planilha do laboratório.
+    </div>
+  </div>
+
+  <script>
+    const EMAIL_DESTINO = "pjsj349@gmail.com";
+
+    const dados = [{"item": 1, "material": "Acelelômetro, Giroscópio e Magnetômetro Mpu - 9250 9 TOVJ11397", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 2, "material": "Alexa", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 3, "material": "Atuador RTC DS1302 5 pinos", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 4, "material": "Barramento 50 pinos macho macho", "quantidade": 24, "armario": "001", "caixa": "001"}, {"item": 5, "material": "Barramento 8 pinps macho macho", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 6, "material": "Barramento macho fêmea", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 7, "material": "Bateria 9V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 8, "material": "Bateria 9V", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 9, "material": "Bateria de Chumbo - XB 1212 - Intelbras", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 10, "material": "Bateria moeda CR 2025", "quantidade": 3, "armario": "001", "caixa": "004"}, {"item": 11, "material": "Bocal de Porcelana para mini lampadas", "quantidade": 12, "armario": "001", "caixa": "003"}, {"item": 12, "material": "Botão Grove - 5V DC - TTL 20mm", "quantidade": 4, "armario": "001", "caixa": "002"}, {"item": 13, "material": "Buzer mini 5V", "quantidade": 73, "armario": "001", "caixa": "002"}, {"item": 14, "material": "Buzzer Module Low Level Trigger", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 15, "material": "Cabo HDI - VGA com adaptador", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 16, "material": "Cabo HDI - VGA sem adaptador", "quantidade": 2, "armario": "001", "caixa": "004"}, {"item": 17, "material": "Cabo HDMI - HDMI  para projetor", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 18, "material": "Cabo USB - Arduino", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 19, "material": "Cabo conector USB C", "quantidade": 10, "armario": "001", "caixa": "001"}, {"item": 20, "material": "Cabo de energia 3 pontas para projetor", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 21, "material": "Camera NEO ID - PTZ CAMERA USB", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 22, "material": "Carregador para 02 Pilhas 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 23, "material": "Chave liga/desliga", "quantidade": 64, "armario": "001", "caixa": "001"}, {"item": 24, "material": "Conector USB tipo Micro-USB (5 pinos)", "quantidade": 7, "armario": "001", "caixa": "002"}, {"item": 25, "material": "Conector elétrico de parafuso - Borne", "quantidade": 100, "armario": "001", "caixa": "003"}, {"item": 26, "material": "Conector fêmea para plug", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 27, "material": "Conjunto dissipador para placas Raspberry", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 28, "material": "Controlador de acesso facial", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 29, "material": "DFplayer Mini - MP3", "quantidade": 11, "armario": "001", "caixa": "002"}, {"item": 30, "material": "Display Groove", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 31, "material": "Display LCD D1 Robot", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 32, "material": "Display LCD I2c 16x2 Com Blacklight Azul e Escrita Branca - 7899744030328 - RTDN32484", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 33, "material": "Display LCD I2c 16x2 Genérico", "quantidade": 9, "armario": "001", "caixa": "002"}, {"item": 34, "material": "Fechadura eletroima - FE20150 - Intrelbras", "quantidade": 2, "armario": "001", "caixa": "001"}, {"item": 35, "material": "Fio com duas tomadas fêmeas", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 36, "material": "Fios macho macho", "quantidade": 40, "armario": "001", "caixa": "004"}, {"item": 37, "material": "Fonte Liga/desliga Model 0530 Raspberry PI 5V - 3000mA", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 38, "material": "Fonte Liga/desliga Model CTD 050300A Raspberry PI 5V - 3000mA", "quantidade": 7, "armario": "001", "caixa": "004"}, {"item": 39, "material": "Fonte Liga/desliga Model CTD 050300A Raspberry PI 5V - 3000mA", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 40, "material": "Fonte com Plug 5V 2A", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 41, "material": "Fontrev de alimentação FA 1220S Mini - Intelbras", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 42, "material": "Kit Braço Robótico", "quantidade": 5, "armario": "001", "caixa": "003"}, {"item": 43, "material": "Kit Carrinho 4 rodas sem motores", "quantidade": 1, "armario": "001", "caixa": "003"}, {"item": 44, "material": "Kit Makey Makey com Cabos", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 45, "material": "Kit fio jumper fêmea fêma", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 46, "material": "Kit fio jumper fêmea fêmea", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 47, "material": "Kit fio jumper macho fêmea", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 48, "material": "Kit fio rigido jumper", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 49, "material": "Kit fio rigido jumper", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 50, "material": "Kit motor de passo 5V 28BYJ-48 + drive ULN2003", "quantidade": 2, "armario": "001", "caixa": "001"}, {"item": 51, "material": "Led 3mm Amarelo", "quantidade": 20, "armario": "001", "caixa": "004"}, {"item": 52, "material": "Led 3mm Amarelo", "quantidade": 10, "armario": "001", "caixa": "004"}, {"item": 53, "material": "Led 3mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 54, "material": "Led 3mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 55, "material": "Led 3mm Vermelho 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 56, "material": "Led 3mm Vermelho 20", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 57, "material": "Led 5mm Verde 10", "quantidade": 1, "armario": "001", "caixa": "004"}, {"item": 58, "material": "Leitor de catrão - RFID - LE 130 MF - Intelbras", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 59, "material": "Lousa Digital 01", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 60, "material": "Micro Switcher 4 canais - HDMI - NEO ID", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 61, "material": "Mini Autofalante", "quantidade": 14, "armario": "001", "caixa": "002"}, {"item": 62, "material": "Mini Headfone para computador", "quantidade": 1, "armario": "001", "caixa": "003"}, {"item": 63, "material": "Mini Joystck - 5 pinos", "quantidade": 8, "armario": "001", "caixa": "001"}, {"item": 64, "material": "Mini Push-button", "quantidade": 20, "armario": "001", "caixa": "004"}, {"item": 65, "material": "Mini teclado Bluetooth", "quantidade": 5, "armario": "001", "caixa": "003"}, {"item": 66, "material": "Mini teclado Bluetooth", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 67, "material": "Motor Engrenado Amarelo", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 68, "material": "Motor de alta potência com suporte", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 69, "material": "Motor de passo 5V 28BYJ-48", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 70, "material": "Módulo Bluetooth - HC-05", "quantidade": 3, "armario": "001", "caixa": "002"}, {"item": 71, "material": "Módulo Botão Amarelo Grove - 111020070", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 72, "material": "Módulo Convesor A/D com Sensor de Luz e Temperatura", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 73, "material": "Módulo Display 8 Colunas", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 74, "material": "Módulo LED & KEY baseado no TM1638 8 Leds e 2 Display de 4 colunas com 8 boitões S1..s8", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 75, "material": "Módulo Leitor de Cartão Memória", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 76, "material": "Módulo Sensor de Umidade de Solo", "quantidade": 15, "armario": "001", "caixa": "002"}, {"item": 77, "material": "Módulo amplificador de áudio - GF1002 / GS27076", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 78, "material": "Módulo de Comunicação ZigBee T2 - Yale", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 79, "material": "Módulo sensor de movimento presença Hc-sr501 Pir Arduino", "quantidade": 29, "armario": "001", "caixa": "001"}, {"item": 80, "material": "Módulo sensor infravermelho ir Tcrt5000 - SKU: MLKIT_MLB3141810404", "quantidade": 5, "armario": "001", "caixa": "002"}, {"item": 81, "material": "Pilha 3.7V Lition Carregável", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 82, "material": "Pilhas AA 1.5V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 83, "material": "Placa universal (placa padrão perfurada) PY-5CM × 7CM", "quantidade": 40, "armario": "001", "caixa": "003"}, {"item": 84, "material": "Plca Arduino", "quantidade": 4, "armario": "001", "caixa": "004"}, {"item": 85, "material": "Plug Banana Preto", "quantidade": 50, "armario": "001", "caixa": "003"}, {"item": 86, "material": "Plug Banana Vermelho", "quantidade": 50, "armario": "001", "caixa": "003"}, {"item": 87, "material": "Plug para rabicho", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 88, "material": "Potenciometro 3 pinos", "quantidade": 64, "armario": "001", "caixa": "001"}, {"item": 89, "material": "Protoboard 25 pinos", "quantidade": 6, "armario": "001", "caixa": "004"}, {"item": 90, "material": "Protoboard 50 pinos", "quantidade": 6, "armario": "001", "caixa": "003"}, {"item": 91, "material": "Protoboard 50 pinos", "quantidade": 9, "armario": "001", "caixa": "004"}, {"item": 92, "material": "Rabicho conexão para bateria 9V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 93, "material": "Ralo Inteligente - Egaplast", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 94, "material": "Raspberry Pi 4", "quantidade": 5, "armario": "001", "caixa": "004"}, {"item": 95, "material": "Receptor de Audio Wireless - WPM-100 - Takstar", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 96, "material": "Regulador de tensão 5V - L7805Cv to 220 3 pinos", "quantidade": 20, "armario": "001", "caixa": "001"}, {"item": 97, "material": "Regulador de tensão 5V - LLM317 ajustável com resistores de 240 e 720 oms 3 pinos", "quantidade": 40, "armario": "001", "caixa": "001"}, {"item": 98, "material": "Relay HW-307", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 99, "material": "Resistor - 320 oms", "quantidade": 16, "armario": "001", "caixa": "004"}, {"item": 100, "material": "Resistor - 320 oms", "quantidade": 16, "armario": "001", "caixa": "004"}, {"item": 101, "material": "Rorary Encoder E38s6-c-(360)b5-26g2", "quantidade": 7, "armario": "001", "caixa": "001"}, {"item": 102, "material": "Sensor Detector de Voz 3 pinos", "quantidade": 14, "armario": "001", "caixa": "002"}, {"item": 103, "material": "Sensor Detector de Voz 4 pinos", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 104, "material": "Sensor Luminosidade Grove", "quantidade": 4, "armario": "001", "caixa": "002"}, {"item": 105, "material": "Sensor RGB TCS34725 3.3 - 5V - %v Safe", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 106, "material": "Sensor Unidade", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 107, "material": "Sensor de Luz Analógico - LDR", "quantidade": 11, "armario": "001", "caixa": "002"}, {"item": 108, "material": "Sensor de Luz Digital BH1750FVILUX", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 109, "material": "Sensor de Temperatura - DHT11", "quantidade": 13, "armario": "001", "caixa": "002"}, {"item": 110, "material": "Sensor de Temperatura - ESP-01S V1.0", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 111, "material": "Sensor de Umidade HD-38", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 112, "material": "Sensor de fluxo de vazão de água s201", "quantidade": 7, "armario": "001", "caixa": "002"}, {"item": 113, "material": "Sensor de nível de liquido ON/OFF Grande A", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 114, "material": "Sensor de nível de liquido ON/OFF Grande B", "quantidade": 1, "armario": "001", "caixa": "002"}, {"item": 115, "material": "Sensor de nível de liquido ON/OFF Pequeno", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 116, "material": "Sensor de peso com célula de carga 50KG", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 117, "material": "Sensor de temperatura - Termistor 10K MF52A", "quantidade": 60, "armario": "001", "caixa": "002"}, {"item": 118, "material": "Sensor infravermelho BKRX12132", "quantidade": 10, "armario": "001", "caixa": "002"}, {"item": 119, "material": "Sensor infravermelho J-842", "quantidade": 12, "armario": "001", "caixa": "002"}, {"item": 120, "material": "Sensor seguidor de linha", "quantidade": 40, "armario": "001", "caixa": "002"}, {"item": 121, "material": "Servo motor 9g SG-90", "quantidade": 8, "armario": "001", "caixa": "001"}, {"item": 122, "material": "Suporte Vertical para Bateria tipo botão", "quantidade": 5, "armario": "001", "caixa": "001"}, {"item": 123, "material": "Suporte bateria 9V c/ chave liga/desliga", "quantidade": 4, "armario": "001", "caixa": "001"}, {"item": 124, "material": "Suporte para 01 pilha 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 125, "material": "Suporte para 02 Pilhas 3.7V", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 126, "material": "Suporte para 04 Pilhas AA /1.5V", "quantidade": 3, "armario": "001", "caixa": "001"}, {"item": 127, "material": "Suporte para bateria 9V com plug", "quantidade": 13, "armario": "001", "caixa": "001"}, {"item": 128, "material": "Suporte para bateria 9V com rabicho", "quantidade": 10, "armario": "001", "caixa": "001"}, {"item": 129, "material": "T com três fêmeas de 3 potas", "quantidade": 3, "armario": "001", "caixa": "004"}, {"item": 130, "material": "Tela LCD touch screen 3.5 pol com caneta", "quantidade": 8, "armario": "001", "caixa": "002"}, {"item": 131, "material": "Termometro com rabicho", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 132, "material": "Tomada conexão para USB 7v - 2000mA", "quantidade": 1, "armario": "001", "caixa": "001"}, {"item": 133, "material": "acionador de fechadura inox", "quantidade": 6, "armario": "001", "caixa": "001"}, {"item": 134, "material": "módulo gravador e reprodutor de voz ISD1820", "quantidade": 2, "armario": "001", "caixa": "002"}, {"item": 135, "material": "suporte para poeta de vidro - SV 20150 - Intelbras", "quantidade": 2, "armario": "001", "caixa": "001"}];
+
+    const buscaEl = document.getElementById("busca");
+    const btnBuscar = document.getElementById("btnBuscar");
+    const btnLimpar = document.getElementById("btnLimpar");
+    const resultadoExato = document.getElementById("resultado-exato");
+    const resultadosLista = document.getElementById("resultados-lista");
+    const tituloLista = document.getElementById("titulo-lista");
+
+    const nomeSolicitanteEl = document.getElementById("nomeSolicitante");
+    const observacoesEl = document.getElementById("observacoes");
+    const pedidoListaEl = document.getElementById("pedido-lista");
+    const pedidoTotalItensEl = document.getElementById("pedido-total-itens");
+    const pedidoTotalQuantidadesEl = document.getElementById("pedido-total-quantidades");
+    const statusPedidoEl = document.getElementById("statusPedido");
+    const btnEnviarEmail = document.getElementById("btnEnviarEmail");
+    const btnCopiarPedido = document.getElementById("btnCopiarPedido");
+    const btnLimparPedido = document.getElementById("btnLimparPedido");
+
+    const pedido = new Map();
+
+    document.getElementById("total-registros").textContent = dados.length;
+    document.getElementById("total-estoque").textContent = dados.filter(d => Number(d.quantidade) > 0).length;
+
+    function normalizar(texto) {
+      return (texto || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function escaparHtml(texto) {
+      return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function mostrarStatus(texto, tipo = "ok") {
+      statusPedidoEl.className = `status-msg ${tipo === "erro" ? "status-erro" : "status-ok"}`;
+      statusPedidoEl.textContent = texto;
+    }
+
+    function limparStatus() {
+      statusPedidoEl.className = "status-msg";
+      statusPedidoEl.textContent = "";
+    }
+
+    function cardResultado(item) {
+      const qtdDisponivel = Number(item.quantidade) || 0;
+      return `
+        <div class="card result found">
+          <div class="material">${escaparHtml(item.material)}</div>
+          <div class="meta">
+            <div><span>Quantidade</span><strong>${qtdDisponivel}</strong></div>
+            <div><span>Armário</span><strong>${escaparHtml(item.armario)}</strong></div>
+            <div><span>Caixa</span><strong>${escaparHtml(item.caixa)}</strong></div>
+          </div>
+          <div class="card-actions">
+            <div class="qtd-box">
+              <label for="qtd-${item.item}"><strong>Qtd. pedir</strong></label>
+              <input id="qtd-${item.item}" type="number" min="1" max="${Math.max(qtdDisponivel, 1)}" value="1" ${qtdDisponivel <= 0 ? "disabled" : ""} />
+            </div>
+            <button class="btn-primary" type="button" onclick="adicionarAoPedido(${item.item})" ${qtdDisponivel <= 0 ? "disabled" : ""}>
+              ${qtdDisponivel <= 0 ? "Sem estoque" : "Adicionar ao pedido"}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function cardNaoEncontrado(termo) {
+      return `
+        <div class="card result not-found">
+          <div class="material">Material não encontrado</div>
+          <div>Não localizei resultado para <strong>${escaparHtml(termo)}</strong>.</div>
+        </div>
+      `;
+    }
+
+    function pesquisar() {
+      const termo = buscaEl.value.trim();
+      const termoNorm = normalizar(termo);
+
+      resultadoExato.innerHTML = "";
+      resultadosLista.innerHTML = "";
+
+      if (!termoNorm) {
+        tituloLista.textContent = "Sugestões";
+        dados.slice(0, 12).forEach(item => {
+          resultadosLista.insertAdjacentHTML("beforeend", cardResultado(item));
+        });
+        return;
+      }
+
+      const exato = dados.find(item => normalizar(item.material) === termoNorm);
+      const aproximados = dados.filter(item => normalizar(item.material).includes(termoNorm));
+
+      if (exato) {
+        resultadoExato.innerHTML = cardResultado(exato);
+      }
+
+      if (aproximados.length === 0) {
+        resultadoExato.innerHTML = cardNaoEncontrado(termo);
+        tituloLista.textContent = "Nenhum resultado";
+        return;
+      }
+
+      tituloLista.textContent = aproximados.length === 1 ? "1 resultado" : `${aproximados.length} resultados`;
+      aproximados.slice(0, 30).forEach(item => {
+        resultadosLista.insertAdjacentHTML("beforeend", cardResultado(item));
+      });
+    }
+
+    function atualizarResumoPedido() {
+      const itens = Array.from(pedido.values());
+      const totalItens = itens.length;
+      const totalQuantidades = itens.reduce((soma, item) => soma + Number(item.qtd || 0), 0);
+
+      pedidoTotalItensEl.textContent = totalItens;
+      pedidoTotalQuantidadesEl.textContent = totalQuantidades;
+
+      if (!itens.length) {
+        pedidoListaEl.innerHTML = `
+          <div class="pedido-vazio">
+            Nenhum item adicionado ainda.<br>
+            Faça a consulta, informe a quantidade e clique em <strong>Adicionar ao pedido</strong>.
+          </div>
+        `;
+        return;
+      }
+
+      pedidoListaEl.innerHTML = itens.map(item => `
+        <div class="pedido-item">
+          <div class="pedido-item-top">
+            <strong>${escaparHtml(item.material)}</strong>
+            <span class="badge">${item.qtd}</span>
+          </div>
+          <div class="muted">Armário ${escaparHtml(item.armario)} · Caixa ${escaparHtml(item.caixa)} · Disponível ${item.quantidade}</div>
+          <div class="pedido-actions" style="margin-top:10px;">
+            <button class="btn-secondary" type="button" onclick="alterarQuantidadePedido(${item.item}, -1)">- 1</button>
+            <button class="btn-secondary" type="button" onclick="alterarQuantidadePedido(${item.item}, 1)">+ 1</button>
+            <button class="btn-warning" type="button" onclick="removerDoPedido(${item.item})">Remover</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function obterItemPorId(itemId) {
+      return dados.find(d => Number(d.item) === Number(itemId));
+    }
+
+    function adicionarAoPedido(itemId) {
+      limparStatus();
+      const item = obterItemPorId(itemId);
+      if (!item) return;
+
+      const inputQtd = document.getElementById(`qtd-${itemId}`);
+      let qtd = Number(inputQtd?.value || 1);
+      const max = Number(item.quantidade) || 0;
+
+      if (!Number.isFinite(qtd) || qtd < 1) qtd = 1;
+      if (qtd > max) qtd = max;
+
+      if (max <= 0) {
+        mostrarStatus("Este item está sem estoque disponível no momento.", "erro");
+        return;
+      }
+
+      pedido.set(itemId, {
+        ...item,
+        qtd
+      });
+
+      atualizarResumoPedido();
+      mostrarStatus(`Item adicionado ao pedido: ${item.material} (${qtd}).`);
+    }
+
+    function alterarQuantidadePedido(itemId, delta) {
+      const atual = pedido.get(itemId);
+      if (!atual) return;
+
+      const limite = Number(atual.quantidade) || 0;
+      let novaQtd = Number(atual.qtd) + Number(delta);
+      if (novaQtd < 1) novaQtd = 1;
+      if (novaQtd > limite) novaQtd = limite;
+
+      pedido.set(itemId, { ...atual, qtd: novaQtd });
+      atualizarResumoPedido();
+      limparStatus();
+    }
+
+    function removerDoPedido(itemId) {
+      const atual = pedido.get(itemId);
+      pedido.delete(itemId);
+      atualizarResumoPedido();
+      mostrarStatus(atual ? `Item removido do pedido: ${atual.material}.` : "Item removido do pedido.");
+    }
+
+    function limparPedido() {
+      pedido.clear();
+      observacoesEl.value = "";
+      atualizarResumoPedido();
+      mostrarStatus("Pedido limpo.");
+    }
+
+    function formatarDataHora() {
+      const agora = new Date();
+      const data = agora.toLocaleDateString("pt-BR");
+      const hora = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      return { data, hora };
+    }
+
+    function montarTextoPedido() {
+      const nome = nomeSolicitanteEl.value.trim();
+      if (!nome) {
+        mostrarStatus("Informe o nome do usuário antes de enviar o pedido.", "erro");
+        nomeSolicitanteEl.focus();
+        return null;
+      }
+
+      const itens = Array.from(pedido.values());
+      if (!itens.length) {
+        mostrarStatus("Adicione pelo menos um item ao pedido antes de enviar.", "erro");
+        return null;
+      }
+
+      const { data, hora } = formatarDataHora();
+      const observacoes = observacoesEl.value.trim();
+
+      const linhasItens = itens.map((item, index) => {
+        return `${index + 1}. ${item.material}\n   Quantidade solicitada: ${item.qtd}\n   Localização: Armário ${item.armario} | Caixa ${item.caixa}\n   Quantidade em estoque: ${item.quantidade}`;
+      }).join("\n\n");
+
+      const assunto = `Pedido de retirada - ${nome} - ${data}`;
+      const corpo = [
+        "Solicitação de retirada de material do Estoque LARI",
+        "",
+        `Nome do usuário: ${nome}`,
+        `Data: ${data}`,
+        `Hora: ${hora}`,
+        "",
+        "Itens solicitados:",
+        linhasItens,
+        "",
+        `Total de itens diferentes: ${itens.length}`,
+        `Total de quantidades solicitadas: ${itens.reduce((soma, item) => soma + Number(item.qtd), 0)}`,
+        "",
+        `Observações: ${observacoes || "Sem observações."}`
+      ].join("\n");
+
+      return { assunto, corpo };
+    }
+
+    function enviarPedidoPorEmail() {
+      const pedidoMontado = montarTextoPedido();
+      if (!pedidoMontado) return;
+
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${encodeURIComponent(EMAIL_DESTINO)}&su=${encodeURIComponent(pedidoMontado.assunto)}&body=${encodeURIComponent(pedidoMontado.corpo)}`;
+      const mailtoUrl = `mailto:${EMAIL_DESTINO}?subject=${encodeURIComponent(pedidoMontado.assunto)}&body=${encodeURIComponent(pedidoMontado.corpo)}`;
+
+      try {
+        const novaAba = window.open(gmailUrl, "_blank", "noopener,noreferrer");
+
+        if (!novaAba) {
+          window.location.href = gmailUrl;
+        }
+
+        mostrarStatus(`Abri a tela de composição do Gmail para enviar a mensagem a ${EMAIL_DESTINO}. Se o Google pedir login, entre na conta e o rascunho do e-mail será exibido. Se o Gmail não abrir no seu navegador, use o botão Copiar pedido.`);
+      } catch (erro) {
+        try {
+          window.location.href = mailtoUrl;
+          mostrarStatus(`Não consegui abrir o Gmail no navegador, então tentei abrir o aplicativo de e-mail do aparelho.`);
+        } catch (erro2) {
+          mostrarStatus(`Não foi possível abrir o Gmail nem o aplicativo de e-mail neste navegador. Use o botão Copiar pedido.`, "erro");
+        }
+      }
+    }
+
+    async function copiarPedido() {
+      const pedidoMontado = montarTextoPedido();
+      if (!pedidoMontado) return;
+
+      const texto = `Assunto: ${pedidoMontado.assunto}\n\n${pedidoMontado.corpo}`;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(texto);
+        } else {
+          const area = document.createElement("textarea");
+          area.value = texto;
+          document.body.appendChild(area);
+          area.select();
+          document.execCommand("copy");
+          document.body.removeChild(area);
+        }
+        mostrarStatus("Pedido copiado para a área de transferência.");
+      } catch (erro) {
+        mostrarStatus("Não consegui copiar automaticamente. Use o botão de envio por e-mail.", "erro");
+      }
+    }
+
+    btnBuscar.addEventListener("click", pesquisar);
+    btnLimpar.addEventListener("click", () => {
+      buscaEl.value = "";
+      pesquisar();
+      buscaEl.focus();
+    });
+    buscaEl.addEventListener("input", pesquisar);
+    buscaEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") pesquisar();
+    });
+
+    btnEnviarEmail.addEventListener("click", enviarPedidoPorEmail);
+    btnCopiarPedido.addEventListener("click", copiarPedido);
+    btnLimparPedido.addEventListener("click", limparPedido);
+
+    window.adicionarAoPedido = adicionarAoPedido;
+    window.alterarQuantidadePedido = alterarQuantidadePedido;
+    window.removerDoPedido = removerDoPedido;
+
+    atualizarResumoPedido();
+    pesquisar();
+  </script>
+</body>
+</html>
